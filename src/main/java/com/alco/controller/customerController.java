@@ -24,13 +24,7 @@ public class customerController {
 
     @Autowired
     CustomerTypeDao customerTypeDao;
-/*
-@RequestMapping("category")
-    public Collection<Category> getAllCategories() {
-        return categoryDao.findMyCategories();
-    }
 
- */
 
     @RequestMapping(value = "/all")
     public Collection<Customer> getAllCustomers() {
