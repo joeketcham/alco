@@ -1,0 +1,19 @@
+.container {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin: 50px;
+    width: 800px;
+
+}
+.item {
+}
+
+table, th, td {
+    display: flex;
+    justify-content: space-between;
+    border: 1px solid black;
+    border-collapse: collapse;
+}

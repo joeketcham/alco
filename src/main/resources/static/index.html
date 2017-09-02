@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Alco</title>
+    <script src="/js/jQuery-2.2.3/jquery-2.2.3.js"></script>
+    <script src="/js/datatables/datatables.js"></script>
+    <script src="/js/custom/index.js"></script>
+    <script src="/js/custom/general.js"></script>
+    <script src="/js/custom/customer.js"></script>
+    <script src="/js/custom/invoice.js"></script>
+    <script src="/js/custom/lines.js"></script>
+    <script src="/js/custom/invoiceLine.js"></script>
+    <script src="/js/Toastr/toastr.min.js"></script>
+    <script src="/js/jquery-ui-1.12.1.custom/jquery-ui.min.js"></script>
+    <script src="js/jquery-timepicker-master/jquery.timepicker.min.js"></script>
+
+    <link rel="stylesheet" href="/js/datatables/datatables.css">
+    <link rel="stylesheet" href="/css/index.css">
+    <link rel="stylesheet" href="/js/Toastr/toastr.min.css">
+    <link rel="stylesheet" href="css/jquery-ui-themes-1.12.1/themes/base/jquery-ui.css">
+    <link rel="stylesheet" href="js/jquery-timepicker-master/jquery.timepicker.css">
+
+</head>
+<body onload="appInit()">
+
+<h1>Alco</h1>
+<span style="float: right; padding-bottom: 10px">
+    <input type="button" onclick="openManageUpcharges();" value="Manage Upcharges" />
+    <input type="button" onclick="openManageItems();" value="Manage Items" />
+    <input type="button" onclick="openManageItemCategories();" value="Manage Item Categories" />
+    <input type="button" onclick="openManageCustomerType();" value="Manage Customer Types" />
+
+</span>
+<form action="javascript:submitSearch()">
+    <label for="searchOption">Search: </label>
+    <input type="text" id="inputCustomer"/>
+    <select name="searchOption" id="searchOption">
+        <option value="findByLastname">Last Name</option>
+        <option value="findByPhone1">Phone</option>
+    </select>
+</form>
+
+<span><h3 id="customerSearchError"></h3></span>
+<div id="customersContainer" style="display:none;">
+    <h3>
+        <div>
+        Customers
+        </div>
+        <div style="float: right;padding-bottom: 10px;">
+            <input type="button" onclick="openEmptyCustomer();" value="Create Customer"/>
+        </div>
+    </h3>
+    <table id="customers" class="display compact" cellspacing="0" width="100%" style="text-align: left;">
+        <thead>
+        <tr>
+            <th>First</th>
+            <th>Last</th>
+            <th>Address</th>
+            <th>City</th>
+            <th>Zip</th>
+            <th>Phone</th>
+            <th>Details</th>
+            <th></th>
+        </tr>
+        </thead>
+    </table>
+</div>
+
+<div id="invoiceContainer" style="display: none;">
+    <h3>
+        <div>
+            Invoices
+        </div>
+        <div style="float: right;padding-bottom: 10px;">
+            <input type="button" onclick="createInvoice();" value="Create Invoice"/>
+            <input type="button" onclick="backToCustomers();" value="Back"/>
+        </div>
+    </h3>
+    <table id="invoices" class="display compact" cellspacing="0" width="100%" style="text-align: left;">
+        <thead>
+        <tr>
+            <th>Drop Off</th>
+            <th>Ready</th>
+            <th>Quantity</th>
+            <th>Total</th>
+            <th>Paid</th>
+            <th>Details</th>
+        </tr>
+        </thead>
+    </table>
+</div>
+
+<div id="linesContainer" style="display: none;">
+    <h3>
+        <div>
+            Invoice Lines
+        </div>
+        <div style="float: right;padding-bottom: 10px;">
+            <input type="button" onclick="createNewItem();" value="Add Item"/>
+            <input type="button" onclick="backToInvoice();" value="Back"/>
+        </div>
+    </h3>
+    <table id="lines" class="display compact" cellspacing="0" width="100%" style="text-align: left;">
+        <thead>
+        <tr>
+            <th>Category</th>
+            <th>Item</th>
+            <th>Quantity</th>
+            <th>Price</th>
+            <th>Price Override</th>
+        </tr>
+        </thead>
+    </table>
+</div>
+
+<div id="customerModal" class="modal">
+    <div class="modal-content">
+        <span class="close" id="closeCustomer" onclick="closeCustomerModal()">x</span>
+        <h3 style="text-align: center">Customer Details</h3>
+        <form id="customerDetailForm" action="/cust">
+            <table id="customerDetailTable">
+                <thead>
+                <tr>
+                    <th width="10%" style="text-align: right">
+                    </th>
+                    <th width="25%" style="text-align: left">
+
+                    </th>
+                </tr>
+                </thead>
+                <tr>
+                    <td>
+                        <label>First Name:</label>
+
+                    </td><td>
+
+                        <input type="text" id="inputFirstname" name="firstname"/>
+                </td>
+                </tr>
+                <tr>
+                    <td>
+                        <label>Middle Initial:</label>
+
+                    </td>
+                    <td>    <input type="text" id="inputmi" name="mi" maxlength="1"/>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <label>Last Name:</label>
+
+                    </td>
+                        <td><input type="text" id="inputLastname" name="lastname"/></td>
+                </tr>
+                <tr>
+                    <td>
+                        <label>Street Address 1:</label>
+
+                    </td>
+                        <td><input type="text" id="address1" name="address1"/></td>
+                </tr>
+                <tr>
+                    <td>
+                        <label>Street Address 2:</label>
+
+                    </td>
+                    <td><input type="text" id="address2" name="address2"/></td>
+                </tr>
+                <tr>
+                    <td>
+                        <label>City:</label>
+
+                    </td>
+                        <td><input type="text" id="city" name="city"/></td>
+                </tr>
+                <tr>
+                    <td>
+                        <label>State:</label>
+
+                    </td>
+                        <td><input type="text" id="state" name="state" maxlength="2"/></td>
+                </tr>
+                <tr>
+                    <td>
+                        <label>Zip</label>
+
+                    </td>
+                        <td><input type="text" id="zip" name="zip" maxlength="9"/></td>
+                </tr>
+                <tr>
+                    <td>
+
+                        <label>Phone:</label>
+                    </td>
+                        <td><input type="text" id="phone1" name="phone1" maxlength="10"/></td>
+                </tr>
+                <tr>
+                    <td>
+                        <label>Phone 2:</label>
+
+                    </td>
+                        <td><input type="text" id="phone2" name="phone2" maxlength="10"/></td>
+                </tr>
+                <tr>
+                    <td>
+                        <label>Email</label>
+
+                    </td>
+                        <td><input type="email" id="email" name="email"/></td>
+                </tr>
+                <tr>
+                    <td>
+                        <label>Type</label>
+
+                    </td>
+                    <td>
+                        <select id="customerType" name="customerType">
+                            <option value="None">-- Select --</option>
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <label>Notes:</label>
+
+                    </td>
+                        <td><textarea rows="4" cols="50" id="note" name="note"></textarea></td>
+                </tr>
+            </table>
+            <input type="hidden" id="customerId" name="customerId" />
+            <input type="button" id="updateCustomer" onclick="updateThisCustomer();" value="Update Customer"/>
+            <input type="button" id="deleteCustomer" onclick="deleteThisCustomer();" value="Delete Customer"/>
+            <input type="button" id="createCustomer" onclick="createThisCustomer();" value="Create Customer"/>
+        </form>
+    </div>
+</div>
+
+<div id="newInvoiceModal" class="modal">
+    <div class="modal-content">
+        <span class="close" id="closeNewInvoiceModal" onclick="closeNewInvoiceModal()">x</span>
+        <h3 style="text-align: center">Invoice Details</h3>
+        <form id="invoiceDetailForm" action="/invoices">
+            <table id="invoiceDetailTable">
+                <thead>
+                <tr>
+                    <th width="10%" style="text-align: right" />
+                    <th width="25%" style="text-align: left" />
+                </tr>
+                </thead>
+                <tr>
+                    <td>
+                        <label>Drop Off Date:</label>
+                    </td><td>
+                    <input type="text" id="dropOffDate" name="dropoffDate" />
+                </td>
+                </tr>
+                <tr>
+                    <td>
+                        <label>Drop Off Time:</label>
+                    </td><td>
+                    <input type="text" id="dropOffTime" name="dropoffTime" maxlength="1"/>
+                    </td>
+                </tr>
+                <tr></tr>
+                <tr>
+                    <td>
+                        <label>Desired Pickup Date:</label>
+                    </td>
+                    <td>
+                        <input type="text" id="pickupDate" name="ready" maxlength="1"/>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <label>Desired Pickup Time:</label>
+                    </td>
+                    <td>
+                        <input type="text" id="pickupTime" name="ready" maxlength="1"/>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <label>Invoice Paid:</label>
+                    </td>
+                    <td>
+                        <input id="paidTrue" type="radio" name="paid" value="true"> Yes<br>
+                        <input id="paidFalse" type="radio" name="paid" value="false" checked="checked"> No<br>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <label>Note:</label>
+                    </td>
+                    <td>
+                        <textarea rows="4" cols="50" id="invoiceNote" name="note"></textarea>
+                    </td>
+                </tr>
+            </table>
+            <input type="button" id="updateInvoice" onclick="updateThisInvoice();" value="Update Invoice"/>
+            <input type="button" id="createInvoice" onclick="createThisInvoice();" value="Create Invoice"/>
+        </form>
+    </div>
+</div>
+
+<div id="lineDetailModal" class="modal">
+    <div class="modal-content">
+        <span class="close" id="closeLineDetailModal" onclick="closeLineDetailModal()">x</span>
+        <h3 style="text-align: center">Invoice Line Item Details</h3>
+        <form id="lineDetailForm" action="/createItemLine">
+
+            <table id="lineDetailTable">
+                <thead>
+                <tr>
+                    <th width="10%" style="text-align: right">
+                    </th>
+                    <th width="25%" style="text-align: left">
+                    </th>
+                </tr>
+                </thead>
+                <tr>
+                    <td>
+                        <label>Category:</label>
+                    </td><td>
+                    <select id="itemCategories" onchange="getItems(this.value)">
+                        <option value="None">-- Select --</option>
+                    </select>
+                </td>
+                </tr>
+                <tr>
+                    <td>
+                        <label>Item:</label>
+                    </td>
+                    <td>
+                        <select id="lineDetailItem" onchange="assignPrice($('#lineDetailItem').val())">
+                            <option value="None">-- Select --</option>
+                        </select>
+                    </td>
+                </tr>
+<!--
+                <tr>
+                    <td>
+                        <label>Upcharge:</label>
+                    </td>
+                    <td>
+                        <select id="lineDetailUpcharge" >
+                            <option value="None">-- Select --</option>
+                        </select>
+                    </td>
+                </tr>
+-->
+                <tr>
+                    <td>
+                        <label>Quantity:</label>
+                    </td>
+                    <td><input type="text" id="lineDetailQuantity" name="quantity"
+                               onchange="multiplyPrice($('#lineDetailQuantity').val())"/></td>
+                </tr>
+                <tr>
+                    <td>
+                        <label>Price:</label>
+                    </td>
+                    <td><input type="text" id="lineDetailPrice" name="price" onchange="priceOverrideTrue();"/></td>
+                </tr>
+            </table>
+        </form>
+        <input type="button" id="insertUpdateLineDetail" onclick="insertUpdateThisLineDetail();" value="Insert / Update Line"/>
+        <input type="button" id="DeleteLineDetail" onclick="deleteThisInvoiceLineDetail();" value="Delete Line"/>
+
+        <div id="upchargesContainer" style="display:none;">
+            <table id="upcharges" class="display compact" cellspacing="0" width="100%" style="text-align: left;">
+                <thead>
+                <tr>
+                    <th>Upcharge</th>
+                    <th>Price</th>
+                </tr>
+                </thead>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div id="manageCustTypeModal" class="modal">
+    <div class="modal-content">
+        <span class="close" id="closeManageCustTypeModal" onclick="closeManageCustTypeModal()">x</span>
+        <h3 style="text-align: center">Manage Customer Types</h3>
+        <form id="custTypeForm" action="/customerTypes">
+            <table id="custTypeTable">
+                <thead>
+                <tr>
+                    <th width="10%" style="text-align: right" />
+                    <th width="25%" style="text-align: left" />
+                </tr>
+                </thead>
+                <tr>
+                    <td>
+                        <label>Customer Types:</label>
+                    </td>
+                    <td>
+                        <select id="manageCustomerTypes" onchange="setCustomerType(this.value)">
+                            <option value="None">-- Select --</option>
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <label>Edit / Create Type:</label>
+                    </td>
+                    <td>
+                        <input type="text" id="custType" name="type" />
+                    </td>
+                </tr>
+            </table>
+            <br>
+            <input type="button" id="createCustType" onclick="createUpdateThisCustType();" value="Create / Update Customer Type"/>
+            <input type="button" id="deleteCustType" onclick="deleteThisCustType();" value="Remove Customer Type"/>
+        </form>
+    </div>
+</div>
+
+<div id="manageItemCategoriesModal" class="modal">
+    <div class="modal-content">
+        <span class="close" id="closeManageItemCategoriesModal" onclick="closeManageItemCategoriesModal()">x</span>
+        <h3 style="text-align: center">Manage Item Categories</h3>
+        <form id="manageItemCategoriesForm" action="/itemCategories">
+            <table id="manageItemCategoriesTable">
+                <thead>
+                <tr>
+                    <th width="10%" style="text-align: right" />
+                    <th width="25%" style="text-align: left" />
+                </tr>
+                </thead>
+                <tr>
+                    <td>
+                        <label>Customer Type:</label>
+                    </td>
+                    <td>
+                        <select id="manageItemCustomerTypes" onchange="setItemCustomerType(this.value)">
+                            <option value="None">-- Select --</option>
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <label>Item Categories:</label>
+                    </td>
+                    <td>
+                        <select id="manageItemCategories" onchange="setItemCategory(this.value)">
+                            <option value="None">-- Select --</option>
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <label>Edit / Create Item Category:</label>
+                    </td>
+                    <td>
+                        <input type="text" id="itemCategory" name="type" />
+                    </td>
+                </tr>
+            </table>
+            <br>
+            <input type="button" id="createItemCategory" onclick="createUpdateThisItemCategory();" value="Create / Update Item Category"/>
+            <input type="button" id="deleteItemCategory" onclick="deleteThisItemCategory();" value="Remove Item Category"/>
+        </form>
+    </div>
+</div>
+
+<div id="manageItemsModal" class="modal">
+    <div class="modal-content">
+        <span class="close" id="closeManageItemsModal" onclick="closeManageItemsModal()">x</span>
+        <h3 style="text-align: center">Manage Items</h3>
+        <form id="manageItemsForm" action="/item">
+            <table id="manageItemsTable">
+                <thead>
+                <tr>
+                    <th width="10%" style="text-align: right" />
+                    <th width="25%" style="text-align: left" />
+                </tr>
+                </thead>
+                <tr>
+                    <td>
+                        <label>Customer Type:</label>
+                    </td>
+                    <td>
+                        <select id="manageItemsModalCustomerType" onchange="setItemsCategoryForModal(this.value)">
+                            <option value="None">-- Select --</option>
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <label>Category:</label>
+                    </td>
+                    <td>
+                        <select id="manageItemsModalCategory" onchange="setItemsForModal(this.value)">
+                            <option value="None">-- Select --</option>
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <label>Item:</label>
+                    </td>
+                    <td>
+                        <select id="manageItemsModalItemsList" onchange="setItemsDetailForModal(this.value)">
+                            <option value="None">-- Select --</option>
+                        </select>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td>
+                        <label>Description:</label>
+                    </td>
+                    <td>
+                        <input type="text" id="itemModalDescription" name="description" />
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <label>Price:</label>
+                    </td>
+                    <td>
+                        <input type="text" id="itemModalPrice" name="price" />
+                    </td>
+                </tr>
+            </table>
+            <br>
+            <input type="button" id="createItemModalItem" onclick="createUpdateThisItemForModal();" value="Create / Update Item"/>
+            <input type="button" id="deleteItemModalItem" onclick="deleteThisItemForModal();" value="Remove Item"/>
+        </form>
+    </div>
+</div>
+
+<div id="manageUpchargeModal" class="modal">
+    <div class="modal-content">
+        <span class="close" id="closeManageUpcharge" onclick="closeManageUpchargesModal()">x</span>
+        <h3 style="text-align: center">Manage Upcharges</h3>
+        <form id="manageUpchargeForm" action="/item">
+            <table id="manageUpchargeTable">
+                <thead>
+                <tr>
+                    <th width="10%" style="text-align: right" />
+                    <th width="25%" style="text-align: left" />
+                </tr>
+                </thead>
+                <tr>
+                    <td>
+                        <label>Upcharge:</label>
+                    </td>
+                    <td>
+                        <select id="UpchargeModalList" onchange="setUpchargeForModal(this.value)">
+                            <option value="None">-- Select --</option>
+                        </select>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td>
+                        <label>Description:</label>
+                    </td>
+                    <td>
+                        <input type="text" id="upchargeModalDescription" name="description" />
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <label>Price:</label>
+                    </td>
+                    <td>
+                        <input type="text" id="upchargeModalPrice" name="price" />
+                    </td>
+                </tr>
+            </table>
+            <br>
+            <input type="button" id="createUpcharge" onclick="createUpdateThisUpchargeForModal();" value="Create / Update Upcharge"/>
+            <input type="button" id="deleteUpcharge" onclick="deleteThisUpchargeForModal();" value="Remove Upcharge"/>
+        </form>
+    </div>
+</div>
+
+</body>
+
+
+</html>
