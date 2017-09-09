@@ -1,0 +1,23 @@
+Bind a simple invoice test page using knockout.js
+Build a service for the invoice page to serve up the data it needs
+Figure out how to split it 3 ways
+Figure out how to repeat pages for multi page invoice
+
+Setup upcharges on invoice line item sheet
+Think about how to apply discounts to an invoice
+How to apply taxes? Charge them on the invoice page?
+Add a taxable flag to customer edit page and database
+
+Bugs:
+- Updating customer (Edit Customer) will save but toastr popup is an error box
+  -> probably not reading the html/json response properly
+
+Database Install
+- Watch out for case sensitivity
+
+Server setup
+- Install arch linux on raspberry pi
+- Install mysql
+- install jre8
+- run alco.jar
+- test ports for firewall
