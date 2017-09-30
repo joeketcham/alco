@@ -28,11 +28,18 @@ function openCustomerModal(detail){
         $("#note").val(detail.note);
         customerId = getObjectId(detail);
         $("#customerId").val(customerId);
+        setCustomerTypesDropdown(true, detail._links.customerType.href);
+
     } else {
         customerId = null;
         $("#customerDetailForm")[0].reset();
+        setCustomerTypesDropdown(false);
     }
     $('#customerType').empty();
+
+}
+
+function setCustomerTypesDropdown(setDropDown, customerTypeHref){
     $.ajax({
         type: "GET",
         url: "customerTypes?size=1000",
@@ -45,6 +52,12 @@ function openCustomerModal(detail){
                     value: getObjectId(currentCustomerType),
                     text : currentCustomerType.type
                 }))
+            }
+            if (setDropDown) {
+                $.getJSON(customerTypeHref, function(result){
+                    $('#customerType option[value=' + result.id + ']').attr('selected', true);
+                    console.log(result);
+                });
             }
         },
         error: function () {
