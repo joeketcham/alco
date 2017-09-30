@@ -209,8 +209,8 @@ function updateThisCustomer() {
     jQuery.ajax({
         url: _url,
         type: "PUT",
-        dataType: "json",
-        contentType: "application/html",
+        dataType: "html",
+        contentType: "application/json",
         data: JSON.stringify(getFormData(form)),
         success: function (data) {
             toastr.success("Success");
